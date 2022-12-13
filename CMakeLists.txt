@@ -20,7 +20,7 @@ add_custom_command(OUTPUT "${BOOST_WORK_DIR}/.glue"
 )
 
 add_custom_command(OUTPUT "${BOOST_LIB_DIR}/.glue"
-    COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DBOOST_INSTALL_LAYOUT=system -DCMAKE_INSTALL_PREFIX=${BOOST_INSTALL_DIR} "${BOOST_BASE_DIR}"
+	COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DBOOST_INSTALL_LAYOUT=system -DBOOST_INCLUDE_LIBRARIES="thread\;chrono\;filesystem\;regex\;system\;random" -DCMAKE_INSTALL_PREFIX=${BOOST_INSTALL_DIR} "${BOOST_BASE_DIR}"
     COMMAND ${CMAKE_COMMAND} --build . --config Release
     COMMAND ${CMAKE_COMMAND} -E touch "${BOOST_LIB_DIR}/.glue"
     WORKING_DIRECTORY "${BOOST_WORK_DIR}"
@@ -45,7 +45,7 @@ target_link_directories(boost INTERFACE ${BOOST_INSTALL_DIR}/lib)
 
 set (CPPREST_WORK_DIR "${CMAKE_CURRENT_BINARY_DIR}/cpprestwork-${CMAKE_SYSTEM_PROCESSOR}")
 set (CPPREST_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cpprestsdk")
-set (CPPREST_LIB_DIR "${CPPREST_WORK_DIR}/stage/lib")
+set (CPPREST_LIB_DIR "${CPPREST_WORK_DIR}/Release/Binaries")
 set (CPPREST_INSTALL_DIR "${CPPREST_WORK_DIR}/install")
 
 add_custom_command(OUTPUT "${CPPREST_WORK_DIR}/.glue"
@@ -54,7 +54,7 @@ add_custom_command(OUTPUT "${CPPREST_WORK_DIR}/.glue"
 )
 
 add_custom_command(OUTPUT "${CPPREST_LIB_DIR}/.glue"
-    COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DBOOST_INSTALL_LAYOUT=system -DCMAKE_INSTALL_PREFIX=${CPPREST_INSTALL_DIR} "${CPPREST_BASE_DIR}"
+    COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CPPREST_INSTALL_DIR} -DBOOST_ROOT="${BOOST_INSTALL_DIR}" "${CPPREST_BASE_DIR}"
     COMMAND ${CMAKE_COMMAND} --build . --config Release
     COMMAND ${CMAKE_COMMAND} -E touch "${CPPREST_LIB_DIR}/.glue"
     WORKING_DIRECTORY "${CPPREST_WORK_DIR}"
@@ -70,10 +70,11 @@ add_custom_command(OUTPUT "${CPPREST_INSTALL_DIR}/.glue"
 )
 
 add_custom_target(build_cpprest DEPENDS "${CPPREST_INSTALL_DIR}/.glue")
-add_library(cpprest INTERFACE)
+add_library(cpprestsdk INTERFACE)
 add_dependencies(build_cpprest build_boost)
-add_dependencies(cpprest build_cpprest)
-target_include_directories(cpprest INTERFACE ${CPPREST_INSTALL_DIR}/include)
-target_link_directories(cpprest INTERFACE ${CPPREST_INSTALL_DIR}/lib)
+add_dependencies(cpprestsdk build_cpprest)
+target_include_directories(cpprestsdk INTERFACE ${CPPREST_INSTALL_DIR}/include)
+target_link_directories(cpprestsdk INTERFACE ${CPPREST_INSTALL_DIR}/lib)
+target_link_libraries(cpprestsdk INTERFACE cpprest)
 
 add_subdirectory ("TwitchRecorder")
