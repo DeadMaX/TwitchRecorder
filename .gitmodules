@@ -1,0 +1,6 @@
+[submodule "cpprestsdk"]
+	path = cpprestsdk
+	url = https://github.com/Microsoft/cpprestsdk.git
+[submodule "boost"]
+	path = boost
+	url = https://github.com/boostorg/boost.git
